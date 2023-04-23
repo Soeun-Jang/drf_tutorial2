@@ -89,4 +89,11 @@ class CommentDetailView(APIView):
   
 class LikeView(APIView):
   def post(self, request, article_id):
-    pass
+    article = get_object_or_404(Article, id=article_id)
+    if request.user in article.likes.all():
+      article.likes.remove(request.user)
+      return Response("unfollow", status=status.HTTP_200_OK)
+
+    else:
+      article.likes.add(request.user)
+      return Response("follow", status=status.HTTP_200_OK)
