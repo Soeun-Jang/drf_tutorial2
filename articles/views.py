@@ -2,18 +2,30 @@ from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response
-
+from articles.models import Article
+from articles.serializers import ArticleSerializer,ArticleListSerializer,ArticleCreateSerializer
 
 class ArticleView(APIView):
   def get(self, request):
-    pass
+    articles = Article.objects.all()
+    serializer = ArticleListSerializer(articles, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
   def post(self, request):
-    pass
-  
-  
+    serializer = ArticleCreateSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.save(user=request.user)
+      return Response(serializer.data)
+    else:
+      return Response(serializer.errors)
+
 class ArticleDetailView(APIView):
   def get(self, request, article_id):
-    pass
+    article = Article.objects.get(id=article_id)
+    serializer = ArticleSerializer(article)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
   def put(self, request, article_id):
     pass
   def delete(self, request, article_id):
